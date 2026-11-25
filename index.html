@@ -3,259 +3,230 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vocab Match Speed Drill</title>
-  <!-- Tailwind CSS CDN for sleek, responsive styling -->
+  <title>Vocab Match Speed Drill — GRE, Spanish Verbs & German</title>
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet" />
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-        },
-      },
-    };
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+      font-variant-numeric: tabular-nums;
+    }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-5px); }
-      40% { transform: translateX(5px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
     }
     .animate-shake {
-      animation: shake 0.35s ease-in-out;
+      animation: shake 0.32s ease-in-out;
     }
-    @keyframes pop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.04); }
-      100% { transform: scale(1); }
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
     .animate-pop {
-      animation: pop 0.2s ease-out;
+      animation: popIn 0.22s ease-out;
     }
-    /* Subtle custom scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500/30">
-
+<body class="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/30 antialiased">
   <!-- Main App Container -->
-  <div id="app" class="min-h-screen flex flex-col items-center px-3 py-4 sm:py-6"></div>
+  <div id="app" class="min-h-screen flex flex-col"></div>
 
-  <!-- Custom Data Import Modal (Hidden by default) -->
-  <div id="import-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl my-auto">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-white">Import CSVs &amp; Export for Cloudflare</h3>
-        <button onclick="closeImportModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+  <!-- CSV Import & Cloudflare Export Modal -->
+  <div id="import-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-5 sm:p-6 animate-pop max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-extrabold text-white">CSV Import &amp; Cloudflare Export</h3>
+        <button onclick="closeImportModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition" aria-label="Close modal">✕</button>
       </div>
 
-      <!-- Multi-file CSV Dropzone -->
-      <div id="csv-dropzone" class="mb-4 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-2xl p-4 text-center bg-slate-950/60 transition cursor-pointer" onclick="document.getElementById('csv-file-input').click()">
-        <input id="csv-file-input" type="file" accept=".csv,.tsv,.txt" multiple class="hidden" onchange="handleCSVFiles(this.files)" />
-        <svg class="w-7 h-7 mx-auto mb-1.5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-        <div class="text-xs font-bold text-slate-200">Click or Drop All CSV Files Here</div>
-        <div class="text-[11px] text-slate-400 mt-1">Auto-detects GRE, VERBEN 100, KERNWORTSCHATZ, PRAESENS, PRAETERITUM, IMPERFEKT &amp; WEITERE ZEITEN</div>
-      </div>
-
-      <!-- Manual Paste Fallback -->
-      <details class="mb-3 bg-slate-950/40 border border-slate-800 rounded-xl p-3">
-        <summary class="text-xs font-semibold text-slate-300 cursor-pointer select-none">Or paste rows manually for a single deck</summary>
-        <div class="mt-3">
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Target Deck</label>
-          <select id="import-target" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 mb-2.5">
-            <option value="english">GRE English Words</option>
-            <option value="spanishVerbsCustom">Spanish 100 Verbs (German Defs)</option>
-            <option value="kernwortschatz">Kernwortschatz (Core Vocab)</option>
-            <option value="es_praesens">Spanish Präsens CSV</option>
-            <option value="es_praeteritum">Spanish Präteritum CSV</option>
-            <option value="es_imperfekt">Spanish Imperfekt CSV</option>
-            <option value="es_weitere">Spanish Weitere Zeiten CSV</option>
-            <option value="german">German Vocab (German Defs)</option>
-            <option value="spanish">Spanish Vocab (English Defs)</option>
-          </select>
-          <textarea id="import-textarea" rows="5" placeholder="abeyance&#9;temporary suspension or inactivity (noun)&#10;abscond&#9;to leave hurriedly and secretly (verb)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 mb-2"></textarea>
-          <button onclick="saveImportedDeck()" class="w-full py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white">
-            Save Pasted Rows
-          </button>
-        </div>
-      </details>
-
-      <!-- Loaded Custom Decks Summary -->
-      <div id="loaded-decks-summary" class="mb-3 text-[11px] text-slate-400"></div>
-      <div id="import-feedback" class="text-xs mb-3 hidden"></div>
-
-      <!-- Export & Actions -->
-      <div class="pt-3 border-t border-slate-800 space-y-2">
+      <!-- Export Section -->
+      <div class="mb-5 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+        <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2">Deploy or Embed</div>
+        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+          Export this entire app (including any custom CSVs you load below) as a standalone HTML file or a ready-to-paste Cloudflare Worker script.
+        </p>
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="exportBakedHTML()" class="px-3 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition">
-            Download Baked HTML
+          <button onclick="downloadBakedHTML()" class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">
+            Download HTML
           </button>
-          <button onclick="copyCloudflareWorker()" class="px-3 py-2.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white transition">
-            Copy Cloudflare Worker
+          <button onclick="copyCloudflareWorker()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+            Copy Worker JS
           </button>
         </div>
-        <div class="flex justify-between items-center pt-1">
-          <button onclick="resetCustomDecks()" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
-            Reset Defaults
-          </button>
-          <button onclick="closeImportModal()" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200">
-            Done
-          </button>
+        <div id="export-feedback" class="text-xs mt-2 min-h-[1rem] text-emerald-400 font-medium"></div>
+      </div>
+
+      <!-- CSV File Drop / Picker -->
+      <div class="mb-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Optional: Load Custom CSV Files</div>
+        <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl cursor-pointer bg-slate-950/50 transition">
+          <span class="text-xs font-semibold text-slate-300">Click to select CSV file(s)</span>
+          <span class="text-[11px] text-slate-500 mt-1">Auto-routes GRE, Verben, Kernwortschatz, Präsens, etc.</span>
+          <input type="file" accept=".csv,.tsv,.txt" multiple class="hidden" onchange="handleCSVFiles(this.files); this.value='';" />
+        </label>
+      </div>
+
+      <!-- Paste TSV/CSV -->
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Or Paste Rows (Word, Definition)</span>
+          <select id="paste-target" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1">
+            <option value="english">GRE English</option>
+            <option value="spanishVerbsCustom">ES Verbs (Custom)</option>
+            <option value="kernwortschatz">Kernwortschatz</option>
+            <option value="german">German → DE</option>
+            <option value="spanish">Spanish → EN</option>
+          </select>
+        </div>
+        <textarea id="paste-input" rows="4" placeholder="Abrogate, To repeal or abolish formally&#10;Banal, So ordinary as to be uninteresting" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
+        <div class="flex items-center justify-between mt-2">
+          <button onclick="resetCustomDecks()" class="text-xs text-rose-400 hover:text-rose-300 font-semibold">Reset Custom Decks</button>
+          <button onclick="importPastedRows()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold transition">Save Pasted</button>
         </div>
       </div>
+
+      <div id="import-feedback" class="text-xs mb-2 min-h-[1rem]"></div>
+      <div id="loaded-decks-summary" class="text-[11px] text-slate-400 bg-slate-950/60 border border-slate-800 rounded-xl p-2.5"></div>
     </div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. BUILT-IN VOCABULARY DATABASES
+    // 1. BUILT-IN VOCABULARY DATABASES (FULL LISTS)
     // =========================================================================
 
-    // 100 Super-Hard GRE English Words
+    // Exact 100 GRE Words from GRE_Vocabulary_Words_501-600.xlsx (with Pronunciation & Definition)
     const defaultEnglishVocab = [
-      { word: "abeyance", def: "Temporary suspension or inactivity (noun)" },
-      { word: "abjure", def: "To solemnly renounce a belief or claim (verb)" },
-      { word: "abscond", def: "To leave hurriedly and secretly to avoid arrest (verb)" },
-      { word: "abstemious", def: "Not self-indulgent, especially in eating or drinking (adj.)" },
-      { word: "acerbic", def: "Sharp and forthright; tasting sour or bitter (adj.)" },
-      { word: "acumen", def: "Ability to make good judgments and quick decisions (noun)" },
-      { word: "adumbrate", def: "To report or represent in outline; foreshadow faintly (verb)" },
-      { word: "alacrity", def: "Brisk and cheerful readiness (noun)" },
-      { word: "ameliorate", def: "To make something bad or unsatisfactory better (verb)" },
-      { word: "anathema", def: "Something or someone vehemently disliked (noun)" },
-      { word: "apocryphal", def: "Of doubtful authenticity, although widely circulated (adj.)" },
-      { word: "approbation", def: "Approval or praise (noun)" },
-      { word: "arrogate", def: "To take or claim something without justification (verb)" },
-      { word: "ascetic", def: "Characterized by severe self-discipline and abstention (adj.)" },
-      { word: "asperity", def: "Harshness of tone or manner (noun)" },
-      { word: "assiduous", def: "Showing great care and perseverance (adj.)" },
-      { word: "assuage", def: "To make an unpleasant feeling less intense (verb)" },
-      { word: "attenuate", def: "To reduce the force, effect, or value of (verb)" },
-      { word: "avarice", def: "Extreme greed for wealth or material gain (noun)" },
-      { word: "belie", def: "To fail to give a true impression of; contradict (verb)" },
-      { word: "bellicose", def: "Demonstrating aggression and willingness to fight (adj.)" },
-      { word: "bombast", def: "High-sounding language with little meaning (noun)" },
-      { word: "bucolic", def: "Relating to the pleasant aspects of the countryside (adj.)" },
-      { word: "burgeon", def: "To begin to grow or increase rapidly; flourish (verb)" },
-      { word: "calumny", def: "The making of false and defamatory statements (noun)" },
-      { word: "capricious", def: "Given to sudden, unaccountable changes of mood (adj.)" },
-      { word: "castigate", def: "To reprimand someone severely (verb)" },
-      { word: "chicanery", def: "Use of trickery to achieve a political or legal purpose (noun)" },
-      { word: "churlish", def: "Rude in a mean-spirited and surly way (adj.)" },
-      { word: "cogent", def: "Clear, logical, and convincing (adj.)" },
-      { word: "complaisant", def: "Willing to please others; obliging (adj.)" },
-      { word: "contumacious", def: "Stubbornly or willfully disobedient to authority (adj.)" },
-      { word: "craven", def: "Contemptibly lacking in courage; cowardly (adj.)" },
-      { word: "cupidity", def: "Greed for money or possessions (noun)" },
-      { word: "dearth", def: "A scarcity or lack of something (noun)" },
-      { word: "deleterious", def: "Causing harm or damage (adj.)" },
-      { word: "denigrate", def: "To criticize unfairly; disparage (verb)" },
-      { word: "desiccate", def: "To remove the moisture from; cause to dry out (verb)" },
-      { word: "desultory", def: "Lacking a plan, purpose, or enthusiasm (adj.)" },
-      { word: "diatribe", def: "A forceful and bitter verbal attack (noun)" },
-      { word: "diffident", def: "Modest or shy from a lack of self-confidence (adj.)" },
-      { word: "dilatory", def: "Slow to act; intended to cause delay (adj.)" },
-      { word: "dirge", def: "A mournful song for the dead (noun)" },
-      { word: "disabuse", def: "To persuade someone that an idea is mistaken (verb)" },
-      { word: "disingenuous", def: "Not candid or sincere; pretending to know less (adj.)" },
-      { word: "dissemble", def: "To conceal one's true motives or feelings (verb)" },
-      { word: "dyspeptic", def: "Grumpy, pessimistic; suffering from indigestion (adj.)" },
-      { word: "ebullient", def: "Cheerful and full of energy (adj.)" },
-      { word: "effrontery", def: "Insolent or impertinent behavior (noun)" },
-      { word: "enervate", def: "To cause someone to feel drained of energy (verb)" },
-      { word: "ephemeral", def: "Lasting for a very short time (adj.)" },
-      { word: "equanimity", def: "Mental calmness and composure in difficulty (noun)" },
-      { word: "equivocate", def: "To use ambiguous language to conceal the truth (verb)" },
-      { word: "erudite", def: "Having or showing great knowledge or learning (adj.)" },
-      { word: "esoteric", def: "Understood by only a small number with specialized knowledge (adj.)" },
-      { word: "exculpate", def: "To show or declare that someone is not guilty (verb)" },
-      { word: "exegesis", def: "Critical explanation or interpretation of a text (noun)" },
-      { word: "exigent", def: "Pressing; demanding immediate attention (adj.)" },
-      { word: "factitious", def: "Artificially created or developed (adj.)" },
-      { word: "fastidious", def: "Very attentive to and concerned about accuracy and detail (adj.)" },
-      { word: "fatuous", def: "Silly and pointless (adj.)" },
-      { word: "foment", def: "To instigate or stir up an undesirable sentiment (verb)" },
-      { word: "frenetic", def: "Wildly excited, frantic, distracted (adj.)" },
-      { word: "fulminate", def: "To express vehement protest (verb)" },
-      { word: "gainsay", def: "To deny or contradict a fact or statement (verb)" },
-      { word: "garrulous", def: "Excessively talkative, especially on trivial matters (adj.)" },
-      { word: "grandiloquent", def: "Pompous or extravagant in language or style (adj.)" },
-      { word: "halcyon", def: "Denoting a period of time in the past that was idyllically happy (adj.)" },
-      { word: "harangue", def: "A lengthy and aggressive speech (noun)" },
-      { word: "iconoclast", def: "One who attacks cherished beliefs or institutions (noun)" },
-      { word: "ignominious", def: "Deserving or causing public disgrace or shame (adj.)" },
-      { word: "impecunious", def: "Having little or no money (adj.)" },
-      { word: "implacable", def: "Unable to be placated or appeased; relentless (adj.)" },
-      { word: "impugn", def: "To dispute the truth, validity, or honesty of (verb)" },
-      { word: "inchoate", def: "Just begun and not fully formed or developed (adj.)" },
-      { word: "indigence", def: "A state of extreme poverty; destitution (noun)" },
-      { word: "ineffable", def: "Too great or extreme to be expressed in words (adj.)" },
-      { word: "insipid", def: "Lacking flavor, vigor, or interest (adj.)" },
-      { word: "intransigent", def: "Unwilling or refusing to change one's views (adj.)" },
-      { word: "inured", def: "Accustomed to something, especially something unpleasant (adj.)" },
-      { word: "irascible", def: "Having or showing a tendency to be easily angered (adj.)" },
-      { word: "laconic", def: "Using very few words; concise (adj.)" },
-      { word: "lassitude", def: "A state of physical or mental weariness (noun)" },
-      { word: "lugubrious", def: "Looking or sounding sad and dismal (adj.)" },
-      { word: "mendacious", def: "Not telling the truth; lying (adj.)" },
-      { word: "mitigate", def: "To make less severe, harmful, or painful (verb)" },
-      { word: "obdurate", def: "Stubbornly refusing to change one's opinion (adj.)" },
-      { word: "obsequious", def: "Obedient or attentive to an excessive, servile degree (adj.)" },
-      { word: "opprobrium", def: "Harsh criticism or censure; public disgrace (noun)" },
-      { word: "partisan", def: "Devoted to a particular cause (adj.); fervent supporter (noun)" },
-      { word: "paucity", def: "The presence of something in insufficient quantities (noun)" },
-      { word: "penury", def: "Extreme poverty; destitution (noun)" },
-      { word: "perfidious", def: "Disloyal, treacherous, violating trust (adj.)" },
-      { word: "pervicacious", def: "Stubbornly unyielding or obstinate (adj.)" },
-      { word: "phlegmatic", def: "Having an unemotional and stolidly calm disposition (adj.)" },
-      { word: "prevaricate", def: "To speak or act in an evasive way (verb)" },
-      { word: "probity", def: "The quality of having strong moral principles; honesty (noun)" },
-      { word: "prodigal", def: "Spending money or resources freely and recklessly (adj.)" },
-      { word: "proxy", def: "Agent or substitute authorized to act for another (noun)" },
-      { word: "pusillanimous", def: "Showing a lack of courage or determination (adj.)" },
-      { word: "quotidian", def: "Daily; everyday, ordinary (adj.)" },
-      { word: "recalcitrant", def: "Obstinately uncooperative toward authority (adj.)" },
-      { word: "recondite", def: "Little known; abstruse and difficult to understand (adj.)" },
-      { word: "saturnine", def: "Slow and gloomy; dark and moody (adj.)" },
-      { word: "soporific", def: "Tending to induce drowsiness or sleep (adj.)" },
-      { word: "specious", def: "Superficially plausible, but actually wrong (adj.)" },
-      { word: "sycophant", def: "A person who acts obsequiously to gain advantage (noun)" },
-      { word: "trenchant", def: "Vigorous or incisive in expression or style (adj.)" },
-      { word: "truculent", def: "Eager or quick to argue or fight (adj.)" },
-      { word: "vitiate", def: "To spoil or impair the quality or efficiency of (verb)" }
+      { word: "Abrogate", pron: "AB-ruh-gayt", def: "To repeal or abolish formally or authoritatively." },
+      { word: "Accretion", pron: "uh-KREE-shun", def: "Gradual growth through the addition of layers or material." },
+      { word: "Admonish", pron: "ad-MON-ish", def: "To warn, reprimand, or advise firmly." },
+      { word: "Aesthete", pron: "ES-theet", def: "A person with a highly developed appreciation of beauty." },
+      { word: "Amorphous", pron: "uh-MOR-fus", def: "Lacking a definite form, structure, or clear organization." },
+      { word: "Anathema", pron: "uh-NATH-uh-muh", def: "Something or someone intensely disliked or condemned." },
+      { word: "Antithetical", pron: "an-tih-THET-ih-kul", def: "Directly opposed or contrasted." },
+      { word: "Apothegm", pron: "AP-uh-them", def: "A short, memorable, and instructive saying." },
+      { word: "Arrogate", pron: "AIR-uh-gayt", def: "To claim or seize without justification." },
+      { word: "Ascetic", pron: "uh-SET-ik", def: "Practicing severe self-discipline and abstention from pleasure." },
+      { word: "Banal", pron: "buh-NAL", def: "So ordinary or overused as to be uninteresting." },
+      { word: "Beatific", pron: "bee-uh-TIF-ik", def: "Showing or imparting supreme happiness or blessedness." },
+      { word: "Bifurcate", pron: "BY-fur-kayt", def: "To divide into two branches or parts." },
+      { word: "Bombastic", pron: "bom-BAS-tik", def: "Using inflated language with little meaning." },
+      { word: "Bucolic", pron: "byoo-KOL-ik", def: "Relating to the pleasant aspects of rural life." },
+      { word: "Byzantine", pron: "BIZ-un-teen", def: "Excessively complex, intricate, or devious." },
+      { word: "Castigate", pron: "KAS-tih-gayt", def: "To criticize or punish severely." },
+      { word: "Caustic", pron: "KAW-stik", def: "Sarcastic in a scathing and bitter way." },
+      { word: "Chicanery", pron: "shih-KAY-nuh-ree", def: "Deception or trickery used to achieve a goal." },
+      { word: "Cogitate", pron: "KOJ-ih-tayt", def: "To think deeply or carefully." },
+      { word: "Complacent", pron: "kum-PLAY-sunt", def: "Self-satisfied and unaware of possible danger or deficiency." },
+      { word: "Concomitant", pron: "kun-KOM-ih-tunt", def: "Naturally accompanying or associated with something." },
+      { word: "Confluent", pron: "KON-floo-unt", def: "Flowing together or merging into one." },
+      { word: "Contentious", pron: "kun-TEN-shus", def: "Likely to cause argument; quarrelsome." },
+      { word: "Cupidity", pron: "kyoo-PID-ih-tee", def: "Greed for money or possessions." },
+      { word: "Debilitate", pron: "dih-BIL-ih-tayt", def: "To make weak or feeble." },
+      { word: "Demagogue", pron: "DEM-uh-gog", def: "A leader who gains support by appealing to emotion and prejudice." },
+      { word: "Denigrate", pron: "DEN-ih-grayt", def: "To criticize unfairly or disparage." },
+      { word: "Desultory", pron: "DES-ul-tor-ee", def: "Lacking a plan, purpose, or enthusiasm." },
+      { word: "Diaphanous", pron: "dy-AF-uh-nus", def: "Delicate, light, and almost transparent." },
+      { word: "Dilatory", pron: "DIL-uh-tor-ee", def: "Slow to act; intended to cause delay." },
+      { word: "Dissemble", pron: "dih-SEM-bul", def: "To conceal one's true motives or feelings." },
+      { word: "Effrontery", pron: "ih-FRUN-tuh-ree", def: "Shameless boldness or insolence." },
+      { word: "Elegiac", pron: "el-uh-JY-ak", def: "Mournful or reflective, especially about the past." },
+      { word: "Embroil", pron: "em-BROYL", def: "To involve deeply in conflict or difficulty." },
+      { word: "Encomium", pron: "en-KOH-mee-um", def: "A formal or enthusiastic expression of praise." },
+      { word: "Endemic", pron: "en-DEM-ik", def: "Native to or regularly found in a particular place." },
+      { word: "Epistolary", pron: "ih-PIS-tuh-lair-ee", def: "Relating to letters or letter writing." },
+      { word: "Equanimity", pron: "ee-kwuh-NIM-ih-tee", def: "Mental calmness and composure under stress." },
+      { word: "Excoriate", pron: "ik-SKOR-ee-ayt", def: "To criticize severely; also, to strip skin from." },
+      { word: "Expurgate", pron: "EK-spur-gayt", def: "To remove material considered objectionable." },
+      { word: "Fecund", pron: "FEE-kund", def: "Highly fertile, productive, or intellectually creative." },
+      { word: "Germane", pron: "jer-MAYN", def: "Relevant and appropriate to the subject." },
+      { word: "Grandiloquent", pron: "gran-DIL-uh-kwunt", def: "Using pompous or extravagant language." },
+      { word: "Halcyon", pron: "HAL-see-un", def: "Calm, peaceful, and happy, especially of a past period." },
+      { word: "Hegemony", pron: "hih-JEM-uh-nee", def: "Dominance of one group or state over others." },
+      { word: "Hubris", pron: "HYOO-bris", def: "Excessive pride or self-confidence." },
+      { word: "Immutable", pron: "ih-MYOO-tuh-bul", def: "Unable or unlikely to change." },
+      { word: "Impassive", pron: "im-PAS-iv", def: "Showing no emotion or reaction." },
+      { word: "Implacable", pron: "im-PLAK-uh-bul", def: "Unable to be appeased or pacified." },
+      { word: "Impute", pron: "im-PYOOT", def: "To attribute an action, quality, or responsibility to someone." },
+      { word: "Incendiary", pron: "in-SEN-dee-air-ee", def: "Designed to cause fire, conflict, or strong emotion." },
+      { word: "Indefatigable", pron: "in-dih-FAT-ih-guh-bul", def: "Persisting tirelessly without becoming exhausted." },
+      { word: "Ineffable", pron: "in-EF-uh-bul", def: "Too great or extreme to be expressed in words." },
+      { word: "Intransigent", pron: "in-TRAN-sih-junt", def: "Unwilling to alter one's views or compromise." },
+      { word: "Lachrymose", pron: "LAK-rih-mohs", def: "Tearful or inclined to weep." },
+      { word: "Lassitude", pron: "LAS-ih-tood", def: "A state of physical or mental weariness." },
+      { word: "Malediction", pron: "mal-uh-DIK-shun", def: "A curse or expression of evil intent." },
+      { word: "Mendicant", pron: "MEN-dih-kunt", def: "A beggar, especially one belonging to a religious order." },
+      { word: "Mercurial", pron: "mer-KYOOR-ee-ul", def: "Subject to sudden or unpredictable changes of mood." },
+      { word: "Militate", pron: "MIL-ih-tayt", def: "To have a substantial effect, usually against something." },
+      { word: "Nascent", pron: "NAS-unt", def: "Beginning to exist or develop." },
+      { word: "Obsequious", pron: "ub-SEE-kwee-us", def: "Excessively obedient or eager to please." },
+      { word: "Opprobrium", pron: "uh-PROH-bree-um", def: "Harsh public criticism or disgrace." },
+      { word: "Orotund", pron: "OR-uh-tund", def: "Full, rich, and imposing in sound or style." },
+      { word: "Panegyric", pron: "pan-uh-JIR-ik", def: "A public speech or text offering elaborate praise." },
+      { word: "Pariah", pron: "puh-RY-uh", def: "A person rejected or avoided by society." },
+      { word: "Pejorative", pron: "pih-JOR-uh-tiv", def: "Expressing contempt or disapproval." },
+      { word: "Penurious", pron: "puh-NYOOR-ee-us", def: "Extremely poor or unwilling to spend money." },
+      { word: "Peremptory", pron: "puh-REMP-tuh-ree", def: "Insisting on immediate obedience; leaving no choice." },
+      { word: "Perspicacious", pron: "pur-spih-KAY-shus", def: "Having keen insight and good judgment." },
+      { word: "Picayune", pron: "pik-ee-YOON", def: "Petty, trivial, or of little value." },
+      { word: "Polemic", pron: "puh-LEM-ik", def: "A strong verbal or written attack on an idea or person." },
+      { word: "Precipitous", pron: "prih-SIP-ih-tus", def: "Dangerously steep or done too suddenly." },
+      { word: "Propitious", pron: "pruh-PISH-us", def: "Favorable or indicating a good chance of success." },
+      { word: "Protean", pron: "PROH-tee-un", def: "Able to change frequently or assume many forms." },
+      { word: "Punctilious", pron: "punk-TIL-ee-us", def: "Showing exact attention to rules or details." },
+      { word: "Quixotic", pron: "kwik-SOT-ik", def: "Idealistic but impractical." },
+      { word: "Relegate", pron: "REL-ih-gayt", def: "To assign to a lower or less important position." },
+      { word: "Remonstrate", pron: "rih-MON-strayt", def: "To protest or argue forcefully against something." },
+      { word: "Reprobate", pron: "REP-ruh-bayt", def: "An unprincipled person; morally corrupt." },
+      { word: "Restive", pron: "RES-tiv", def: "Unable to remain still or controlled; impatient." },
+      { word: "Ribald", pron: "RIB-uld", def: "Humorous in a vulgar or indecent way." },
+      { word: "Sardonic", pron: "sar-DON-ik", def: "Grimly mocking or cynical." },
+      { word: "Sinecure", pron: "SY-nih-kyoor", def: "A paid position requiring little or no work." },
+      { word: "Spartan", pron: "SPAR-tun", def: "Simple, austere, and lacking comfort." },
+      { word: "Specious", pron: "SPEE-shus", def: "Superficially plausible but actually misleading." },
+      { word: "Stolid", pron: "STOL-id", def: "Calm and showing little emotion." },
+      { word: "Supercilious", pron: "soo-per-SIL-ee-us", def: "Behaving as though superior to others." },
+      { word: "Surfeit", pron: "SUR-fit", def: "An excessive amount of something." },
+      { word: "Temporize", pron: "TEM-puh-ryz", def: "To delay or avoid commitment in order to gain time." },
+      { word: "Tirade", pron: "TY-rayd", def: "A long, angry, and critical speech." },
+      { word: "Torpid", pron: "TOR-pid", def: "Mentally or physically inactive; sluggish." },
+      { word: "Truculent", pron: "TRUK-yuh-lunt", def: "Aggressively defiant or eager to fight." },
+      { word: "Umbrage", pron: "UM-brij", def: "Offense, resentment, or annoyance." },
+      { word: "Unctuous", pron: "UNK-choo-us", def: "Excessively flattering or ingratiating." },
+      { word: "Vacuous", pron: "VAK-yoo-us", def: "Lacking intelligence, thought, or meaningful content." },
+      { word: "Venal", pron: "VEE-nul", def: "Open to bribery or motivated by money." },
+      { word: "Veracity", pron: "vuh-RAS-ih-tee", def: "Conformity to truth; accuracy or honesty." },
+      { word: "Vitriolic", pron: "vit-ree-OL-ik", def: "Filled with bitter criticism or malice." }
     ];
 
     // German Vocab (Definitions in German)
     const defaultGermanVocab = [
       { word: "Schadenfreude", def: "Freude über das Missgeschick eines anderen (Nomen)" },
       { word: "Verschlimmbessern", def: "Etwas verschlechtern, während man versucht, es zu verbessern (Verb)" },
-      { word: "Zeitgeist", def: "Vorherrschende Denk- und Fühlweise einer Epoche (Nomen)" },
+      { word: "Zeitgeist", def: "Die vorherrschende Denk- und Fühlweise einer bestimmten Epoche (Nomen)" },
       { word: "Fingerspitzengefühl", def: "Intuitives Gespür oder Einfühlungsvermögen (Nomen)" },
-      { word: "Kummerspeck", def: "Übergewicht durch emotionales Überessen (Nomen)" },
-      { word: "Weltschmerz", def: "Gefühl der Melancholie und Weltmüdigkeit (Nomen)" },
-      { word: "Torschlusspanik", def: "Angst, dass die Zeit abläuft, um Lebensziele zu erreichen (Nomen)" },
-      { word: "Fernweh", def: "Sehnsucht nach fernen Orten; Verlangen zu reisen (Nomen)" },
-      { word: "Erbsenzähler", def: "Person, die von Details besessen ist; ein Pedant (Nomen)" },
+      { word: "Kummerspeck", def: "Übergewicht, das durch emotionales Überessen entsteht (Nomen)" },
+      { word: "Weltschmerz", def: "Ein Gefühl der Melancholie und Weltmüdigkeit (Nomen)" },
+      { word: "Torschlusspanik", def: "Die Angst, dass die Zeit abläuft, um Lebensziele zu erreichen (Nomen)" },
+      { word: "Fernweh", def: "Die Sehnsucht nach fernen Orten; das Verlangen zu reisen (Nomen)" },
+      { word: "Erbsenzähler", def: "Eine Person, die von Details besessen ist; ein Pedant (Nomen)" },
       { word: "Kopfkino", def: "Szenarien, die sich nur im Kopf abspielen (Nomen)" },
       { word: "Fremdschämen", def: "Sich für das Verhalten einer anderen Person schämen (Verb)" },
       { word: "Sehnsucht", def: "Ein starkes, oft unerklärliches Verlangen (Nomen)" },
-      { word: "Ohrwurm", def: "Eine Melodie, die man nicht mehr aus dem Kopf bekommt (Nomen)" },
-      { word: "Schnapsidee", def: "Eine verrückte, absurde oder unausgereifte Idee (Nomen)" },
-      { word: "Treppenwitz", def: "Gute Antwort, die einem erst zu spät einfällt (Nomen)" },
-      { word: "Zweisamkeit", def: "Vertrautes Zusammensein zu zweit (Nomen)" }
+      { word: "Waldeinsamkeit", def: "Das friedliche Gefühl, allein im Wald zu sein (Nomen)" },
+      { word: "Feierabend", def: "Die freie Zeit am Abend nach getaner Arbeit (Nomen)" },
+      { word: "Sitzfleisch", def: "Ausdauer bei einer langwierigen, sitzenden Tätigkeit (Nomen)" }
     ];
 
     // Spanish Vocab (Definitions in English)
@@ -265,17 +236,60 @@
       { word: "Estrenar", def: "To use or wear something for the very first time (verb)" },
       { word: "Friolero", def: "A person who is very sensitive to the cold (adj.)" },
       { word: "Anteayer", def: "The day before yesterday (noun)" },
-      { word: "Empalagar", def: "To sicken or overwhelm with too much sweetness (verb)" },
+      { word: "Empalagar", def: "To sicken or disgust with too much sweetness (verb)" },
       { word: "Trasnochar", def: "To stay up very late or all night (verb)" },
-      { word: "Tuerto", def: "A person who has only one eye (adj.)" },
+      { word: "Tuerto", def: "A person who has only one eye or is blind in one eye (adj.)" },
       { word: "Manco", def: "A person missing an arm or hand (adj.)" },
       { word: "Tocayo", def: "A person who shares your first name (noun)" },
       { word: "Tutear", def: "To address someone informally using 'tú' (verb)" },
       { word: "Desvelado", def: "Unable to sleep; wide awake at night (adj.)" },
-      { word: "Vergüenza ajena", def: "Secondhand embarrassment for someone else (noun)" },
       { word: "Merendar", def: "To have an afternoon snack (verb)" },
       { word: "Botellón", def: "Informal outdoor gathering to drink with friends (noun)" },
       { word: "Lampiño", def: "Having little or no facial or body hair (adj.)" }
+    ];
+
+    // Built-in Kernwortschatz (Spanish -> German Core Vocabulary)
+    const defaultKernwortschatz = [
+      { word: "siempre", def: "immer" },
+      { word: "nunca", def: "niemals / nie" },
+      { word: "todavía", def: "noch / immer noch" },
+      { word: "ya", def: "schon / bereits" },
+      { word: "aunque", def: "obwohl" },
+      { word: "mientras", def: "während" },
+      { word: "sin embargo", def: "jedoch / trotzdem" },
+      { word: "además", def: "außerdem" },
+      { word: "entonces", def: "dann / damals / also" },
+      { word: "después", def: "danach / später" },
+      { word: "antes", def: "vorher / bevor" },
+      { word: "cerca", def: "nah / in der Nähe" },
+      { word: "lejos", def: "weit weg / fern" },
+      { word: "pronto", def: "bald / früh" },
+      { word: "tarde", def: "spät / der Nachmittag" },
+      { word: "ahora", def: "jetzt" },
+      { word: "ayer", def: "gestern" },
+      { word: "mañana", def: "morgen / der Morgen" },
+      { word: "hoy", def: "heute" },
+      { word: "quizás", def: "vielleicht" },
+      { word: "seguro", def: "sicher / gewiss" },
+      { word: "fácil", def: "einfach / leicht" },
+      { word: "difícil", def: "schwierig / schwer" },
+      { word: "rápido", def: "schnell" },
+      { word: "despacio", def: "langsam" },
+      { word: "juntos", def: "zusammen / gemeinsam" },
+      { word: "solo", def: "allein / nur" },
+      { word: "todo", def: "alles / ganz" },
+      { word: "nada", def: "nichts" },
+      { word: "alguien", def: "jemand" },
+      { word: "nadie", def: "niemand" },
+      { word: "algo", def: "etwas" },
+      { word: "bastante", def: "ziemlich / genug" },
+      { word: "demasiado", def: "zu viel" },
+      { word: "apenas", def: "kaum" },
+      { word: "casi", def: "fast / beinahe" },
+      { word: "por eso", def: "deshalb / deswegen" },
+      { word: "en cambio", def: "hingegen / stattdessen" },
+      { word: "de repente", def: "plötzlich" },
+      { word: "a menudo", def: "oft / häufig" }
     ];
 
     // =========================================================================
@@ -285,21 +299,21 @@
     const spanish100Verbs = [
       { inf: "ser", de: "sein (dauerhaft)" },
       { inf: "estar", de: "sein / sich befinden" },
-      { inf: "tener", de: "haben / besitzen" },
+      { inf: "tener", de: "haben" },
       { inf: "hacer", de: "machen / tun" },
       { inf: "poder", de: "können" },
       { inf: "decir", de: "sagen" },
       { inf: "ir", de: "gehen / fahren" },
       { inf: "ver", de: "sehen" },
       { inf: "dar", de: "geben" },
-      { inf: "saber", de: "wissen / können" },
+      { inf: "saber", de: "wissen" },
       { inf: "querer", de: "wollen / lieben" },
       { inf: "llegar", de: "ankommen" },
       { inf: "pasar", de: "passieren / verbringen" },
       { inf: "deber", de: "müssen / sollen" },
       { inf: "poner", de: "stellen / legen / setzen" },
-      { inf: "parecer", de: "scheinen / aussehen" },
-      { inf: "quedar", de: "bleiben / übrig sein" },
+      { inf: "parecer", de: "scheinen / wirken" },
+      { inf: "quedar", de: "bleiben / sich treffen" },
       { inf: "creer", de: "glauben" },
       { inf: "hablar", de: "sprechen / reden" },
       { inf: "llevar", de: "tragen / mitnehmen" },
@@ -327,12 +341,12 @@
       { inf: "escribir", de: "schreiben" },
       { inf: "perder", de: "verlieren" },
       { inf: "producir", de: "produzieren / erzeugen" },
-      { inf: "ocurrir", de: "geschehen / vorkommen" },
+      { inf: "ocurrir", de: "geschehen / passieren" },
       { inf: "entender", de: "verstehen" },
       { inf: "pedir", de: "bitten / bestellen" },
-      { inf: "recibir", de: "erhalten / empfangen" },
+      { inf: "recibir", de: "erhalten / bekommen" },
       { inf: "recordar", de: "sich erinnern" },
-      { inf: "terminar", de: "beenden / aufhören" },
+      { inf: "terminar", de: "beenden / enden" },
       { inf: "permitir", de: "erlauben / ermöglichen" },
       { inf: "aparecer", de: "erscheinen / auftauchen" },
       { inf: "conseguir", de: "erreichen / bekommen" },
@@ -340,17 +354,17 @@
       { inf: "servir", de: "dienen / servieren" },
       { inf: "sacar", de: "herausholen / ziehen" },
       { inf: "necesitar", de: "brauchen / benötigen" },
-      { inf: "mantener", de: "behalten / aufrechterhalten" },
-      { inf: "resultar", de: "sich ergeben / herausstellen" },
+      { inf: "mantener", de: "aufrechterhalten / behalten" },
+      { inf: "resultar", de: "sich ergeben / ausfallen" },
       { inf: "leer", de: "lesen" },
       { inf: "caer", de: "fallen" },
       { inf: "cambiar", de: "ändern / wechseln" },
       { inf: "presentar", de: "vorstellen / präsentieren" },
-      { inf: "crear", de: "erschaffen / kreieren" },
+      { inf: "crear", de: "erschaffen / erstellen" },
       { inf: "abrir", de: "öffnen" },
       { inf: "considerar", de: "betrachten / erwägen" },
       { inf: "oír", de: "hören" },
-      { inf: "acabar", de: "beenden / fertig werden" },
+      { inf: "acabar", de: "beenden / fertigstellen" },
       { inf: "convertir", de: "verwandeln / umwandeln" },
       { inf: "ganar", de: "gewinnen / verdienen" },
       { inf: "formar", de: "bilden / formen" },
@@ -359,9 +373,9 @@
       { inf: "morir", de: "sterben" },
       { inf: "aceptar", de: "akzeptieren / annehmen" },
       { inf: "realizar", de: "durchführen / verwirklichen" },
-      { inf: "suponer", de: "vermuten / annehmen" },
+      { inf: "suponer", de: "vermuten / voraussetzen" },
       { inf: "comprender", de: "begreifen / verstehen" },
-      { inf: "lograr", de: "schaffen / erzielen" },
+      { inf: "lograr", de: "erreichen / schaffen" },
       { inf: "explicar", de: "erklären" },
       { inf: "preguntar", de: "fragen" },
       { inf: "tocar", de: "berühren / spielen (Instr.)" },
@@ -369,7 +383,7 @@
       { inf: "estudiar", de: "studieren / lernen" },
       { inf: "alcanzar", de: "erreichen / einholen" },
       { inf: "nacer", de: "geboren werden" },
-      { inf: "dirigir", de: "leiten / lenken" },
+      { inf: "dirigir", de: "leiten / richten" },
       { inf: "correr", de: "rennen / laufen" },
       { inf: "utilizar", de: "benutzen / verwenden" },
       { inf: "pagar", de: "bezahlen" },
@@ -380,12 +394,11 @@
       { inf: "cumplir", de: "erfüllen / einhalten" },
       { inf: "ofrecer", de: "anbieten" },
       { inf: "descubrir", de: "entdecken" },
-      { inf: "levantar", de: "heben / aufrichten" },
+      { inf: "levantar", de: "heben / aufheben" },
       { inf: "intentar", de: "versuchen" },
       { inf: "usar", de: "benutzen / gebrauchen" }
     ];
 
-    // Pronoun labels: 0:yo, 1:tú, 2:él/ella, 3:nosotros, 4:ellos
     const PRONOUNS_ES = ["yo", "tú", "él/ella", "nosotros", "ellos"];
     const PRONOUNS_DE = ["ich", "du", "er/sie", "wir", "sie (Pl.)"];
 
@@ -394,12 +407,39 @@
       presente:    { label: "Presente",    deTag: "Präsens" },
       indefinido:  { label: "Indefinido",  deTag: "Indefinido (Verg.)" },
       imperfecto:  { label: "Imperfecto",  deTag: "Imperfekt (Verg.)" },
+      perfecto:    { label: "Perfecto",    deTag: "Perfekt (Verg.)" },
+      ir_a:        { label: "Ir a + Inf.", deTag: "Nahe Zukunft" },
       futuro:      { label: "Futuro",      deTag: "Futur" },
       condicional: { label: "Condicional", deTag: "Konditional" },
       subjuntivo:  { label: "Subjuntivo",  deTag: "Subjuntivo (Präs.)" }
     };
 
-    // Exact irregular tables for full accuracy across all 100 verbs
+    const IRREGULAR_PARTICIPLES = {
+      hacer: "hecho",
+      decir: "dicho",
+      ver: "visto",
+      poner: "puesto",
+      suponer: "supuesto",
+      volver: "vuelto",
+      escribir: "escrito",
+      abrir: "abierto",
+      descubrir: "descubierto",
+      morir: "muerto",
+      leer: "leído",
+      creer: "creído",
+      caer: "caído",
+      traer: "traído",
+      oír: "oído"
+    };
+
+    function getParticiple(inf) {
+      if (IRREGULAR_PARTICIPLES[inf]) return IRREGULAR_PARTICIPLES[inf];
+      const ending = inf.slice(-2);
+      const stem = inf.slice(0, -2);
+      return ending === "ar" ? stem + "ado" : stem + "ido";
+    }
+
+    // Irregular conjugation overrides for high-frequency verbs [yo, tú, él, nosotros, ellos]
     const IRREGULAR_MAP = {
       ser: {
         presente: ["soy", "eres", "es", "somos", "son"],
@@ -418,36 +458,6 @@
         imperfecto: ["iba", "ibas", "iba", "íbamos", "iban"],
         subjuntivo: ["vaya", "vayas", "vaya", "vayamos", "vayan"]
       },
-      tener: {
-        presente: ["tengo", "tienes", "tiene", "tenemos", "tienen"],
-        indefinido: ["tuve", "tuviste", "tuvo", "tuvimos", "tuvieron"],
-        futStem: "tendr",
-        subjuntivo: ["tenga", "tengas", "tenga", "tengamos", "tengan"]
-      },
-      mantener: {
-        presente: ["mantengo", "mantienes", "mantiene", "mantenemos", "mantienen"],
-        indefinido: ["mantuve", "mantuviste", "mantuvo", "mantuvimos", "mantuvieron"],
-        futStem: "mantendr",
-        subjuntivo: ["mantenga", "mantengas", "mantenga", "mantengamos", "mantengan"]
-      },
-      hacer: {
-        presente: ["hago", "haces", "hace", "hacemos", "hacen"],
-        indefinido: ["hice", "hiciste", "hizo", "hicimos", "hicieron"],
-        futStem: "har",
-        subjuntivo: ["haga", "hagas", "haga", "hagamos", "hagan"]
-      },
-      poder: {
-        presente: ["puedo", "puedes", "puede", "podemos", "pueden"],
-        indefinido: ["pude", "pudiste", "pudo", "pudimos", "pudieron"],
-        futStem: "podr",
-        subjuntivo: ["pueda", "puedas", "pueda", "podamos", "puedan"]
-      },
-      decir: {
-        presente: ["digo", "dices", "dice", "decimos", "dicen"],
-        indefinido: ["dije", "dijiste", "dijo", "dijimos", "dijeron"],
-        futStem: "dir",
-        subjuntivo: ["diga", "digas", "diga", "digamos", "digan"]
-      },
       ver: {
         presente: ["veo", "ves", "ve", "vemos", "ven"],
         indefinido: ["vi", "viste", "vio", "vimos", "vieron"],
@@ -459,50 +469,80 @@
         indefinido: ["di", "diste", "dio", "dimos", "dieron"],
         subjuntivo: ["dé", "des", "dé", "demos", "den"]
       },
+      tener: {
+        presente: ["tengo", "tienes", "tiene", "tenemos", "tienen"],
+        indefinido: ["tuve", "tuviste", "tuvo", "tuvimos", "tuvieron"],
+        futuroStem: "tendr",
+        subjuntivo: ["tenga", "tengas", "tenga", "tengamos", "tengan"]
+      },
+      mantener: {
+        presente: ["mantengo", "mantienes", "mantiene", "mantenemos", "mantienen"],
+        indefinido: ["mantuve", "mantuviste", "mantuvo", "mantuvimos", "mantuvieron"],
+        futuroStem: "mantendr",
+        subjuntivo: ["mantenga", "mantengas", "mantenga", "mantengamos", "mantengan"]
+      },
+      hacer: {
+        presente: ["hago", "haces", "hace", "hacemos", "hacen"],
+        indefinido: ["hice", "hiciste", "hizo", "hicimos", "hicieron"],
+        futuroStem: "har",
+        subjuntivo: ["haga", "hagas", "haga", "hagamos", "hagan"]
+      },
+      poder: {
+        presente: ["puedo", "puedes", "puede", "podemos", "pueden"],
+        indefinido: ["pude", "pudiste", "pudo", "pudimos", "pudieron"],
+        futuroStem: "podr",
+        subjuntivo: ["pueda", "puedas", "pueda", "podamos", "puedan"]
+      },
+      decir: {
+        presente: ["digo", "dices", "dice", "decimos", "dicen"],
+        indefinido: ["dije", "dijiste", "dijo", "dijimos", "dijeron"],
+        futuroStem: "dir",
+        subjuntivo: ["diga", "digas", "diga", "digamos", "digan"]
+      },
       saber: {
         presente: ["sé", "sabes", "sabe", "sabemos", "saben"],
         indefinido: ["supe", "supiste", "supo", "supimos", "supieron"],
-        futStem: "sabr",
+        futuroStem: "sabr",
         subjuntivo: ["sepa", "sepas", "sepa", "sepamos", "sepan"]
       },
       querer: {
         presente: ["quiero", "quieres", "quiere", "queremos", "quieren"],
         indefinido: ["quise", "quisiste", "quiso", "quisimos", "quisieron"],
-        futStem: "querr",
+        futuroStem: "querr",
         subjuntivo: ["quiera", "quieras", "quiera", "queramos", "quieran"]
       },
       poner: {
         presente: ["pongo", "pones", "pone", "ponemos", "ponen"],
         indefinido: ["puse", "pusiste", "puso", "pusimos", "pusieron"],
-        futStem: "pondr",
+        futuroStem: "pondr",
         subjuntivo: ["ponga", "pongas", "ponga", "pongamos", "pongan"]
       },
       suponer: {
         presente: ["supongo", "supones", "supone", "suponemos", "suponen"],
         indefinido: ["supuse", "supusiste", "supuso", "supusimos", "supusieron"],
-        futStem: "supondr",
+        futuroStem: "supondr",
         subjuntivo: ["suponga", "supongas", "suponga", "supongamos", "supongan"]
       },
       venir: {
         presente: ["vengo", "vienes", "viene", "venimos", "vienen"],
         indefinido: ["vine", "viniste", "vino", "vinimos", "vinieron"],
-        futStem: "vendr",
+        futuroStem: "vendr",
         subjuntivo: ["venga", "vengas", "venga", "vengamos", "vengan"]
       },
       salir: {
         presente: ["salgo", "sales", "sale", "salimos", "salen"],
-        futStem: "saldr",
+        futuroStem: "saldr",
         subjuntivo: ["salga", "salgas", "salga", "salgamos", "salgan"]
-      },
-      caer: {
-        presente: ["caigo", "caes", "cae", "caemos", "caen"],
-        indefinido: ["caí", "caíste", "cayó", "caímos", "cayeron"],
-        subjuntivo: ["caiga", "caigas", "caiga", "caigamos", "caigan"]
       },
       traer: {
         presente: ["traigo", "traes", "trae", "traemos", "traen"],
         indefinido: ["traje", "trajiste", "trajo", "trajimos", "trajeron"],
         subjuntivo: ["traiga", "traigas", "traiga", "traigamos", "traigan"]
+      },
+      caer: {
+        presente: ["caigo", "caes", "cae", "caemos", "caen"],
+        indefinido: ["caí", "caíste", "cayó", "caímos", "cayeron"],
+        subjuntivo: ["caiga", "caigas", "caiga", "caigamos", "caigan"]
       },
       oír: {
         presente: ["oigo", "oyes", "oye", "oímos", "oyen"],
@@ -513,6 +553,30 @@
         presente: ["produzco", "produces", "produce", "producimos", "producen"],
         indefinido: ["produje", "produjiste", "produjo", "produjimos", "produjeron"],
         subjuntivo: ["produzca", "produzcas", "produzca", "produzcamos", "produzcan"]
+      },
+      conocer: {
+        presente: ["conozco", "conoces", "conoce", "conocemos", "conocen"],
+        subjuntivo: ["conozca", "conozcas", "conozca", "conozcamos", "conozcan"]
+      },
+      reconocer: {
+        presente: ["reconozco", "reconoces", "reconoce", "reconocemos", "reconocen"],
+        subjuntivo: ["reconozca", "reconozcas", "reconozca", "reconozcamos", "reconozcan"]
+      },
+      parecer: {
+        presente: ["parezco", "pareces", "parece", "parecemos", "parecen"],
+        subjuntivo: ["parezca", "parezcas", "parezca", "parezcamos", "parezcan"]
+      },
+      aparecer: {
+        presente: ["aparezco", "apareces", "aparece", "aparecemos", "aparecen"],
+        subjuntivo: ["aparezca", "aparezcas", "aparezca", "aparezcamos", "aparezcan"]
+      },
+      ofrecer: {
+        presente: ["ofrezco", "ofreces", "ofrece", "ofrecemos", "ofrecen"],
+        subjuntivo: ["ofrezca", "ofrezcas", "ofrezca", "ofrezcamos", "ofrezcan"]
+      },
+      nacer: {
+        presente: ["nazco", "naces", "nace", "nacemos", "nacen"],
+        subjuntivo: ["nazca", "nazcas", "nazca", "nazcamos", "nazcan"]
       },
       seguir: {
         presente: ["sigo", "sigues", "sigue", "seguimos", "siguen"],
@@ -549,6 +613,44 @@
         indefinido: ["morí", "moriste", "murió", "morimos", "murieron"],
         subjuntivo: ["muera", "mueras", "muera", "muramos", "mueran"]
       },
+      pensar: {
+        presente: ["pienso", "piensas", "piensa", "pensamos", "piensan"],
+        subjuntivo: ["piense", "pienses", "piense", "pensemos", "piensen"]
+      },
+      empezar: {
+        presente: ["empiezo", "empiezas", "empieza", "empezamos", "empiezan"],
+        indefinido: ["empecé", "empezaste", "empezó", "empezamos", "empezaron"],
+        subjuntivo: ["empiece", "empieces", "empiece", "empecemos", "empiecen"]
+      },
+      comenzar: {
+        presente: ["comienzo", "comienzas", "comienza", "comenzamos", "comienzan"],
+        indefinido: ["comencé", "comenzaste", "comenzó", "comenzamos", "comenzaron"],
+        subjuntivo: ["comience", "comiences", "comience", "comencemos", "comiencen"]
+      },
+      perder: {
+        presente: ["pierdo", "pierdes", "pierde", "perdemos", "pierden"],
+        subjuntivo: ["pierda", "pierdas", "pierda", "perdamos", "pierdan"]
+      },
+      entender: {
+        presente: ["entiendo", "entiendes", "entiende", "entendemos", "entienden"],
+        subjuntivo: ["entienda", "entiendas", "entienda", "entendamos", "entiendan"]
+      },
+      encontrar: {
+        presente: ["encuentro", "encuentras", "encuentra", "encontramos", "encuentran"],
+        subjuntivo: ["encuentre", "encuentres", "encuentre", "encontremos", "encuentren"]
+      },
+      contar: {
+        presente: ["cuento", "cuentas", "cuenta", "contamos", "cuentan"],
+        subjuntivo: ["cuente", "cuentes", "cuente", "contemos", "cuenten"]
+      },
+      recordar: {
+        presente: ["recuerdo", "recuerdas", "recuerda", "recordamos", "recuerdan"],
+        subjuntivo: ["recuerde", "recuerdes", "recuerde", "recordemos", "recuerden"]
+      },
+      volver: {
+        presente: ["vuelvo", "vuelves", "vuelve", "volvemos", "vuelven"],
+        subjuntivo: ["vuelva", "vuelvas", "vuelva", "volvamos", "vuelvan"]
+      },
       jugar: {
         presente: ["juego", "juegas", "juega", "jugamos", "juegan"],
         indefinido: ["jugué", "jugaste", "jugó", "jugamos", "jugaron"],
@@ -566,117 +668,83 @@
       }
     };
 
-    // Stem-changing verbs (boot pattern in presente & subjuntivo)
-    const STEM_CHANGES = {
-      encontrar: ["o", "ue"],
-      volver: ["o", "ue"],
-      contar: ["o", "ue"],
-      recordar: ["o", "ue"],
-      pensar: ["e", "ie"],
-      empezar: ["e", "ie"],
-      comenzar: ["e", "ie"],
-      perder: ["e", "ie"],
-      entender: ["e", "ie"]
-    };
-
-    // -cer / -cir verbs with -zco in yo presente & all subjuntivo
-    const ZCO_VERBS = new Set(["parecer", "conocer", "aparecer", "reconocer", "nacer", "ofrecer"]);
-
-    function applyLastVowelChange(stem, fromV, toV) {
-      const idx = stem.lastIndexOf(fromV);
-      if (idx === -1) return stem;
-      return stem.slice(0, idx) + toV + stem.slice(idx + 1);
-    }
-
-    function applyOrthoBeforeE(stem) {
-      if (stem.endsWith("c")) return stem.slice(0, -1) + "qu";
-      if (stem.endsWith("g")) return stem.slice(0, -1) + "gu";
-      if (stem.endsWith("z")) return stem.slice(0, -1) + "c";
-      return stem;
-    }
-
-    /**
-     * Conjugates any of the 100 Spanish verbs into the requested tense and person index (0..4).
-     */
     function conjugateSpanish(inf, tense, pIdx) {
       if (tense === "infinitivo") return inf;
 
-      const irr = IRREGULAR_MAP[inf];
-      if (irr && irr[tense]) return irr[tense][pIdx];
+      if (tense === "perfecto") {
+        const haber = ["he", "has", "ha", "hemos", "han"][pIdx];
+        return `${haber} ${getParticiple(inf)}`;
+      }
+      if (tense === "ir_a") {
+        const irForm = ["voy", "vas", "va", "vamos", "van"][pIdx];
+        return `${irForm} a ${inf}`;
+      }
 
-      const ending = inf.slice(-2); // ar, er, ir
+      const irr = IRREGULAR_MAP[inf];
+      if (irr && irr[tense]) {
+        return irr[tense][pIdx];
+      }
+
+      const ending = inf.slice(-2);
       const stem = inf.slice(0, -2);
 
-      // Futuro & Condicional
       if (tense === "futuro") {
-        const fStem = (irr && irr.futStem) ? irr.futStem : inf;
-        return fStem + ["é", "ás", "á", "emos", "án"][pIdx];
+        const fStem = (irr && irr.futuroStem) ? irr.futuroStem : inf;
+        const fEnd = ["é", "ás", "á", "emos", "án"][pIdx];
+        return fStem + fEnd;
       }
+
       if (tense === "condicional") {
-        const cStem = (irr && irr.futStem) ? irr.futStem : inf;
-        return cStem + ["ía", "ías", "ía", "íamos", "ían"][pIdx];
+        const cStem = (irr && irr.futuroStem) ? irr.futuroStem : inf;
+        const cEnd = ["ía", "ías", "ía", "íamos", "ían"][pIdx];
+        return cStem + cEnd;
       }
 
-      // Imperfecto
       if (tense === "imperfecto") {
-        if (ending === "ar") {
-          return stem + ["aba", "abas", "aba", "ábamos", "aban"][pIdx];
-        }
-        return stem + ["ía", "ías", "ía", "íamos", "ían"][pIdx];
+        const impEnd = ending === "ar"
+          ? ["aba", "abas", "aba", "ábamos", "aban"][pIdx]
+          : ["ía", "ías", "ía", "íamos", "ían"][pIdx];
+        return stem + impEnd;
       }
 
-      // Indefinido
       if (tense === "indefinido") {
         if (ending === "ar") {
-          const s = pIdx === 0 ? applyOrthoBeforeE(stem) : stem;
+          let s = stem;
+          if (pIdx === 0) {
+            if (inf.endsWith("car")) s = stem.slice(0, -1) + "qu";
+            else if (inf.endsWith("gar")) s = stem + "u";
+            else if (inf.endsWith("zar")) s = stem.slice(0, -1) + "c";
+          }
           return s + ["é", "aste", "ó", "amos", "aron"][pIdx];
         }
         return stem + ["í", "iste", "ió", "imos", "ieron"][pIdx];
       }
 
-      // Presente
-      if (tense === "presente") {
-        if (ZCO_VERBS.has(inf) && pIdx === 0) return stem.slice(0, -1) + "zco";
-        let s = stem;
-        if (STEM_CHANGES[inf] && pIdx !== 3) {
-          s = applyLastVowelChange(stem, STEM_CHANGES[inf][0], STEM_CHANGES[inf][1]);
-        }
-        if (ending === "ar") return s + ["o", "as", "a", "amos", "an"][pIdx];
-        if (ending === "er") return s + ["o", "es", "e", "emos", "en"][pIdx];
-        return s + ["o", "es", "e", "imos", "en"][pIdx];
-      }
-
-      // Subjuntivo
       if (tense === "subjuntivo") {
-        if (ZCO_VERBS.has(inf)) {
-          return stem.slice(0, -1) + "zc" + ["a", "as", "a", "amos", "an"][pIdx];
-        }
-        let s = stem;
-        if (STEM_CHANGES[inf] && pIdx !== 3) {
-          s = applyLastVowelChange(stem, STEM_CHANGES[inf][0], STEM_CHANGES[inf][1]);
-        }
         if (ending === "ar") {
-          s = applyOrthoBeforeE(s);
+          let s = stem;
+          if (inf.endsWith("car")) s = stem.slice(0, -1) + "qu";
+          else if (inf.endsWith("gar")) s = stem + "u";
+          else if (inf.endsWith("zar")) s = stem.slice(0, -1) + "c";
           return s + ["e", "es", "e", "emos", "en"][pIdx];
         }
-        return s + ["a", "as", "a", "amos", "an"][pIdx];
+        return stem + ["a", "as", "a", "amos", "an"][pIdx];
       }
 
-      return inf;
+      // Presente regular
+      if (ending === "ar") return stem + ["o", "as", "a", "amos", "an"][pIdx];
+      if (ending === "er") return stem + ["o", "es", "e", "emos", "en"][pIdx];
+      return stem + ["o", "es", "e", "imos", "en"][pIdx];
     }
 
     // =========================================================================
-    // 3. STATE & AUDIO
+    // 3. PERSISTENT STORAGE & APPLICATION STATE
     // =========================================================================
 
     const STORAGE_KEYS = {
       history: "vocab_speed_drill_history_v2",
       custom: "vocab_speed_drill_custom_decks_v2"
     };
-
-    // BAKED_CUSTOM_DECKS_START
-    const BAKED_CUSTOM_DECKS = {};
-    // BAKED_CUSTOM_DECKS_END
 
     function loadJSON(key, fallback) {
       try {
@@ -687,36 +755,36 @@
       }
     }
 
-    function saveJSON(key, value) {
+    function saveJSON(key, val) {
       try {
-        localStorage.setItem(key, JSON.stringify(value));
+        localStorage.setItem(key, JSON.stringify(val));
       } catch {
-        // Ignore storage quota errors in sandboxed iframes
+        // Ignore storage quota errors in restricted sandboxes
       }
     }
 
-    let customDecks = Object.assign({}, BAKED_CUSTOM_DECKS, loadJSON(STORAGE_KEYS.custom, {}));
+    // Baked custom decks placeholder (overwritten when user exports baked HTML)
+    let customDecks = Object.assign({}, /*__BAKED_DECKS_START__*/ {} /*__BAKED_DECKS_END__*/, loadJSON(STORAGE_KEYS.custom, {}));
 
     const state = {
       view: "dashboard", // 'dashboard' | 'game' | 'history'
       config: {
-        gridSize: 8,        // 8 or 12
-        mode: "spanishVerbs", // 'english' | 'spanishVerbs' | 'german' | 'spanish' | 'kernwortschatz'
-        tense: "mixed",     // 'mixed' | 'infinitivo' | 'presente' | 'indefinido' | 'imperfecto' | 'futuro' | 'condicional' | 'subjuntivo' | 'weitere'
+        gridSize: 8,         // 8 (4 pairs) or 12 (6 pairs)
+        mode: "english",     // 'english' | 'spanishVerbs' | 'german' | 'spanish' | 'kernwortschatz'
+        tense: "mixed",      // 'mixed' | 'infinitivo' | 'presente' | ...
         soundOn: true
       },
-      history: loadJSON(STORAGE_KEYS.history, []),
-      // Active game state
       deck: [],
       selected: [],
       matched: [],
       mismatchHighlight: [],
       penalties: 0,
       wrongLogs: [],
+      isFinished: false,
       startTime: 0,
       elapsed: 0,
-      isFinished: false,
-      rafId: null
+      rafId: null,
+      history: loadJSON(STORAGE_KEYS.history, [])
     };
 
     function setConfig(key, value) {
@@ -730,70 +798,225 @@
       render();
     }
 
+    // =========================================================================
+    // 4. UTILITIES, AUDIO, CSV PARSER & GAME ENGINE
+    // =========================================================================
+
+    function escapeHTML(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function formatTime(ms) {
+      return (Math.max(0, ms) / 1000).toFixed(2) + "s";
+    }
+
+    let audioCtx = null;
+    function getAudioCtx() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return null;
+      if (!audioCtx) audioCtx = new AudioContext();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+
+    // Synthesizes a crisp "cha-ching" coin chime on correct matches
+    function playMoneySound() {
+      if (!state.config.soundOn) return;
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(987.77, now);        // B5
+      osc.frequency.setValueAtTime(1318.51, now + 0.07); // E6
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.28, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.37);
+    }
+
+    // Subtle low buzz on wrong match (+1s penalty)
+    function playErrorSound() {
+      if (!state.config.soundOn) return;
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.linearRampToValueAtTime(120, now + 0.16);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.19);
+    }
+
+    function parseDelimitedLine(line, delimiter) {
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === delimiter && !inQuotes) {
+          out.push(cur.trim());
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur.trim());
+      return out;
+    }
+
+    function extractPairsFromCSV(rawText, target) {
+      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) return [];
+      const sample = lines.slice(0, 5).join("\n");
+      const delimiter = sample.includes("\t") ? "\t" : (sample.split(";").length > sample.split(",").length ? ";" : ",");
+      const pairs = [];
+
+      lines.forEach((line, idx) => {
+        const cols = parseDelimitedLine(line, delimiter).filter((c, i) => !(i === 0 && /^\d+\.?$/.test(c)));
+        if (cols.length < 2) return;
+        const firstLower = cols[0].toLowerCase();
+        if (idx === 0 && ["word", "wort", "verb", "infinitiv", "deutsch", "spanisch", "español"].some(h => firstLower.includes(h))) {
+          return;
+        }
+        if (target === "english" && cols.length >= 3) {
+          pairs.push({ word: cols[0], pron: cols[1], def: cols[2] });
+        } else {
+          const word = cols[0];
+          const def = cols[1];
+          if (word && def) pairs.push({ word, def });
+        }
+      });
+      return pairs;
+    }
+
+    function handleCSVFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length === 0) return;
+      const fb = document.getElementById("import-feedback");
+      let processed = 0;
+      const loadedSummary = [];
+
+      files.forEach(file => {
+        const name = file.name.toLowerCase();
+        let target = "english";
+        if (name.includes("gre")) target = "english";
+        else if (name.includes("verben")) target = "spanishVerbsCustom";
+        else if (name.includes("kern")) target = "kernwortschatz";
+        else if (name.includes("praesens") || name.includes("präsens")) target = "es_praesens";
+        else if (name.includes("praeteritum") || name.includes("präteritum")) target = "es_praeteritum";
+        else if (name.includes("imperfekt")) target = "es_imperfekt";
+        else if (name.includes("weitere")) target = "es_weitere";
+        else if (name.includes("start")) {
+          processed++;
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = e => {
+          const pairs = extractPairsFromCSV(String(e.target.result || ""), target);
+          if (pairs.length >= 4) {
+            customDecks[target] = pairs;
+            loadedSummary.push(`${target} (${pairs.length})`);
+          }
+          processed++;
+          if (processed === files.length) {
+            saveJSON(STORAGE_KEYS.custom, customDecks);
+            updateLoadedDecksSummary();
+            if (fb) {
+              fb.textContent = loadedSummary.length > 0
+                ? `Loaded: ${loadedSummary.join(", ")}`
+                : "No valid pairs found in selected files.";
+              fb.className = loadedSummary.length > 0
+                ? "text-xs mb-2 text-emerald-400 font-semibold"
+                : "text-xs mb-2 text-amber-400";
+            }
+            render();
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    function importPastedRows() {
+      const target = document.getElementById("paste-target").value;
+      const raw = document.getElementById("paste-input").value;
+      const fb = document.getElementById("import-feedback");
+      const pairs = extractPairsFromCSV(raw, target);
+      if (pairs.length < 4) {
+        fb.textContent = "Please paste at least 4 valid rows (Word, Definition).";
+        fb.className = "text-xs mb-2 text-amber-400";
+        return;
+      }
+      customDecks[target] = pairs;
+      saveJSON(STORAGE_KEYS.custom, customDecks);
+      document.getElementById("paste-input").value = "";
+      fb.textContent = `Saved ${pairs.length} pairs to ${target}!`;
+      fb.className = "text-xs mb-2 text-emerald-400 font-semibold";
+      updateLoadedDecksSummary();
+      render();
+    }
+
+    function resetCustomDecks() {
+      customDecks = {};
+      saveJSON(STORAGE_KEYS.custom, customDecks);
+      const fb = document.getElementById("import-feedback");
+      if (fb) {
+        fb.textContent = "Custom decks cleared. Using built-in decks.";
+        fb.className = "text-xs mb-2 text-slate-300";
+      }
+      updateLoadedDecksSummary();
+      render();
+    }
+
     function updateLoadedDecksSummary() {
       const el = document.getElementById("loaded-decks-summary");
       if (!el) return;
-      const keys = Object.keys(customDecks).filter(k => Array.isArray(customDecks[k]) && customDecks[k].length > 0);
+      const keys = Object.keys(customDecks);
       if (keys.length === 0) {
-        el.innerHTML = `<span class="text-slate-500">Using built-in decks (no custom CSVs loaded yet).</span>`;
+        el.innerHTML = `<span class="text-slate-500">Custom CSV decks: none (all built-in full lists active).</span>`;
       } else {
-        el.innerHTML = `<div class="font-semibold text-slate-300 mb-1">Active Custom CSV Decks:</div>` +
-          `<div class="flex flex-wrap gap-1.5">` +
-          keys.map(k => `<span class="px-2 py-0.5 rounded bg-indigo-500/20 border border-indigo-500/30 text-indigo-300">${escapeHTML(k)}: ${customDecks[k].length}</span>`).join("") +
-          `</div>`;
+        el.innerHTML = `<strong class="text-slate-300">Active Custom Decks:</strong> ` +
+          keys.map(k => `<span class="inline-block bg-slate-800 px-1.5 py-0.5 rounded mr-1 mt-1">${escapeHTML(k)} (${customDecks[k].length})</span>`).join("");
       }
-    }
-
-    function buildBakedHTMLString() {
-      const serialized = JSON.stringify(customDecks);
-      const rawDoc = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-      return rawDoc.replace(
-        /\/\/ BAKED_CUSTOM_DECKS_START[\s\S]*?\/\/ BAKED_CUSTOM_DECKS_END/,
-        `// BAKED_CUSTOM_DECKS_START\n    const BAKED_CUSTOM_DECKS = ${serialized};\n    // BAKED_CUSTOM_DECKS_END`
-      );
-    }
-
-    function exportBakedHTML() {
-      const html = buildBakedHTMLString();
-      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "vocab-speed-drill-baked.html";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      const fb = document.getElementById("import-feedback");
-      fb.textContent = "Downloaded vocab-speed-drill-baked.html with all loaded CSV decks permanently embedded!";
-      fb.className = "text-xs mb-3 text-emerald-400 font-semibold";
-    }
-
-    function copyCloudflareWorker() {
-      const html = buildBakedHTMLString();
-      const workerCode = `export default {\n  async fetch(request) {\n    const html = ${JSON.stringify(html)};\n    return new Response(html, {\n      headers: { "content-type": "text/html;charset=UTF-8" }\n    });\n  }\n};\n`;
-      const ta = document.createElement("textarea");
-      ta.value = workerCode;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-
-      const fb = document.getElementById("import-feedback");
-      fb.textContent = "Copied complete Cloudflare Worker script (with your baked CSVs) to clipboard!";
-      fb.className = "text-xs mb-3 text-amber-300 font-semibold";
     }
 
     function openImportModal() {
       const modal = document.getElementById("import-modal");
-      const fb = document.getElementById("import-feedback");
-      fb.classList.add("hidden");
-      updateLoadedDecksSummary();
       modal.classList.remove("hidden");
       modal.classList.add("flex");
+      updateLoadedDecksSummary();
     }
 
     function closeImportModal() {
@@ -802,38 +1025,56 @@
       modal.classList.remove("flex");
     }
 
-    function saveImportedDeck() {
-      const target = document.getElementById("import-target").value;
-      const raw = document.getElementById("import-textarea").value.trim();
-      const fb = document.getElementById("import-feedback");
-
-      if (!raw) {
-        fb.textContent = "Please paste at least 4 rows of Word and Definition.";
-        fb.className = "text-xs mb-3 text-red-400";
-        return;
-      }
-
-      const parsed = extractPairsFromCSV(raw, target);
-      if (parsed.length < 4) {
-        fb.textContent = "Could not parse at least 4 valid pairs. Separate columns with a Tab, Semicolon, or Comma.";
-        fb.className = "text-xs mb-3 text-red-400";
-        return;
-      }
-
-      customDecks[target] = parsed;
-      saveJSON(STORAGE_KEYS.custom, customDecks);
-      updateLoadedDecksSummary();
-
-      fb.textContent = `Saved ${parsed.length} custom pairs to ${target}!`;
-      fb.className = "text-xs mb-3 text-emerald-400 font-semibold";
-      render();
+    function buildBakedHTMLString() {
+      const docHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const serialized = JSON.stringify(customDecks);
+      return docHTML.replace(
+        /\/\*__BAKED_DECKS_START__\*\/[\s\S]*?\/\*__BAKED_DECKS_END__\*\//,
+        `/*__BAKED_DECKS_START__*/ ${serialized} /*__BAKED_DECKS_END__*/`
+      );
     }
 
-    function resetCustomDecks() {
-      customDecks = Object.assign({}, BAKED_CUSTOM_DECKS);
-      saveJSON(STORAGE_KEYS.custom, {});
-      updateLoadedDecksSummary();
-      render();
+    function downloadBakedHTML() {
+      const html = buildBakedHTMLString();
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vocab-speed-drill.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      const fb = document.getElementById("export-feedback");
+      if (fb) fb.textContent = "Downloaded vocab-speed-drill.html!";
+    }
+
+    function copyTextFallback(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        // Ignore copy failure
+      }
+      document.body.removeChild(ta);
+    }
+
+    function copyCloudflareWorker() {
+      const html = buildBakedHTMLString();
+      const escaped = html
+        .replace(/\\/g, "\\\\")
+        .replace(/`/g, "\\`")
+        .replace(/\$\{/g, "\\${");
+      const workerCode = `export default {\n  async fetch() {\n    const html = \`${escaped}\`;\n    return new Response(html, {\n      headers: { "content-type": "text/html;charset=UTF-8" }\n    });\n  }\n};\n`;
+      copyTextFallback(workerCode);
+      const fb = document.getElementById("export-feedback");
+      if (fb) fb.textContent = "Copied Cloudflare Worker JS to clipboard!";
     }
 
     function clearHistory() {
@@ -842,35 +1083,212 @@
       render();
     }
 
-    // Drag-and-drop support on CSV dropzone
-    window.addEventListener("DOMContentLoaded", () => {
-      const dz = document.getElementById("csv-dropzone");
-      if (!dz) return;
-      dz.addEventListener("dragover", e => {
-        e.preventDefault();
-        dz.classList.add("border-indigo-400", "bg-indigo-950/30");
+    function buildPairsForCurrentMode() {
+      const { mode, tense, gridSize } = state.config;
+      const pairCount = gridSize / 2;
+
+      if (mode === "english") {
+        const pool = customDecks.english?.length ? customDecks.english : defaultEnglishVocab;
+        return shuffleArray(pool).slice(0, pairCount).map(item => ({
+          word: item.word,
+          subWord: item.pron || "",
+          def: item.def
+        }));
+      }
+
+      if (mode === "german") {
+        const pool = customDecks.german?.length ? customDecks.german : defaultGermanVocab;
+        return shuffleArray(pool).slice(0, pairCount);
+      }
+
+      if (mode === "spanish") {
+        const pool = customDecks.spanish?.length ? customDecks.spanish : defaultSpanishVocab;
+        return shuffleArray(pool).slice(0, pairCount);
+      }
+
+      if (mode === "kernwortschatz") {
+        const pool = customDecks.kernwortschatz?.length ? customDecks.kernwortschatz : defaultKernwortschatz;
+        return shuffleArray(pool).slice(0, pairCount);
+      }
+
+      // Spanish Verbs -> German
+      const csvTenseMap = {
+        infinitivo: customDecks.spanishVerbsCustom,
+        presente: customDecks.es_praesens,
+        indefinido: customDecks.es_praeteritum,
+        imperfecto: customDecks.es_imperfekt,
+        weitere: customDecks.es_weitere
+      };
+
+      if (tense !== "mixed" && csvTenseMap[tense]?.length >= pairCount) {
+        return shuffleArray(csvTenseMap[tense]).slice(0, pairCount);
+      }
+
+      if (tense === "mixed") {
+        const allCsvVerbs = Object.values(csvTenseMap).filter(Boolean).flat();
+        if (allCsvVerbs.length >= pairCount) {
+          return shuffleArray(allCsvVerbs).slice(0, pairCount);
+        }
+      }
+
+      const activeTenses = ["presente", "indefinido", "imperfecto", "perfecto", "ir_a", "futuro", "condicional", "subjuntivo"];
+      const pickedVerbs = shuffleArray(spanish100Verbs).slice(0, pairCount);
+
+      return pickedVerbs.map(v => {
+        const chosenTense = tense === "mixed"
+          ? activeTenses[Math.floor(Math.random() * activeTenses.length)]
+          : (TENSE_META[tense] ? tense : "presente");
+
+        if (chosenTense === "infinitivo") {
+          return {
+            word: v.inf,
+            def: v.de,
+            subDef: TENSE_META.infinitivo.deTag
+          };
+        }
+
+        const pIdx = Math.floor(Math.random() * PRONOUNS_ES.length);
+        const conjugated = conjugateSpanish(v.inf, chosenTense, pIdx);
+        return {
+          word: `${PRONOUNS_ES[pIdx]} ${conjugated}`,
+          def: `${PRONOUNS_DE[pIdx]} — ${v.de}`,
+          subDef: TENSE_META[chosenTense].deTag
+        };
       });
-      dz.addEventListener("dragleave", () => {
-        dz.classList.remove("border-indigo-400", "bg-indigo-950/30");
+    }
+
+    function getModeLabel() {
+      const { mode, tense } = state.config;
+      if (mode === "english") return "GRE English";
+      if (mode === "german") return "German → DE";
+      if (mode === "spanish") return "Spanish → EN";
+      if (mode === "kernwortschatz") return "Kernwortschatz";
+      const tLabel = tense === "mixed" ? "All Tenses" : (TENSE_META[tense]?.label || tense);
+      return `ES Verbs → DE (${tLabel})`;
+    }
+
+    function startGame() {
+      cancelAnimationFrame(state.rafId);
+      const pairs = buildPairsForCurrentMode();
+      const cards = [];
+
+      pairs.forEach((p, idx) => {
+        const pairId = `p-${idx}`;
+        cards.push({ id: `w-${idx}`, pairId, type: "word", text: p.word, subDef: p.subWord || "" });
+        cards.push({ id: `d-${idx}`, pairId, type: "definition", text: p.def, subDef: p.subDef || "" });
       });
-      dz.addEventListener("drop", e => {
-        e.preventDefault();
-        dz.classList.remove("border-indigo-400", "bg-indigo-950/30");
-        if (e.dataTransfer?.files?.length) handleCSVFiles(e.dataTransfer.files);
-      });
-    });
+
+      state.deck = shuffleArray(cards);
+      state.selected = [];
+      state.matched = [];
+      state.mismatchHighlight = [];
+      state.penalties = 0;
+      state.wrongLogs = [];
+      state.isFinished = false;
+      state.startTime = performance.now();
+      state.elapsed = 0;
+      state.view = "game";
+      render();
+
+      const tick = () => {
+        if (state.view !== "game" || state.isFinished) return;
+        state.elapsed = performance.now() - state.startTime;
+        const timerEl = document.getElementById("hud-timer");
+        if (timerEl) {
+          timerEl.textContent = formatTime(state.elapsed + state.penalties * 1000);
+        }
+        state.rafId = requestAnimationFrame(tick);
+      };
+      state.rafId = requestAnimationFrame(tick);
+    }
+
+    function handleCardClick(idx) {
+      const card = state.deck[idx];
+      if (
+        !card ||
+        state.isFinished ||
+        state.matched.includes(card.pairId) ||
+        state.selected.includes(idx) ||
+        state.selected.length >= 2 ||
+        state.mismatchHighlight.length > 0
+      ) {
+        return;
+      }
+
+      state.selected.push(idx);
+      render();
+
+      if (state.selected.length === 2) {
+        const [firstIdx, secondIdx] = state.selected;
+        const firstCard = state.deck[firstIdx];
+        const secondCard = state.deck[secondIdx];
+
+        if (firstCard.pairId === secondCard.pairId) {
+          playMoneySound();
+          state.matched.push(firstCard.pairId);
+          state.selected = [];
+
+          if (state.matched.length === state.config.gridSize / 2) {
+            state.isFinished = true;
+            state.elapsed = performance.now() - state.startTime;
+            cancelAnimationFrame(state.rafId);
+
+            const runRecord = {
+              id: Date.now(),
+              date: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              grid: `${state.config.gridSize} Blocks`,
+              modeLabel: getModeLabel(),
+              rawTimeMs: state.elapsed,
+              penalties: state.penalties,
+              wrongAttempts: [...state.wrongLogs]
+            };
+            state.history = [runRecord, ...state.history].slice(0, 50);
+            saveJSON(STORAGE_KEYS.history, state.history);
+            render();
+
+            setTimeout(() => {
+              if (state.view === "game" && state.isFinished) {
+                state.view = "history";
+                render();
+              }
+            }, 650);
+          } else {
+            render();
+          }
+        } else {
+          playErrorSound();
+          state.penalties += 1;
+          state.mismatchHighlight = [firstIdx, secondIdx];
+          state.wrongLogs.push({ w1: firstCard.text, w2: secondCard.text });
+          render();
+
+          setTimeout(() => {
+            state.selected = [];
+            state.mismatchHighlight = [];
+            if (state.view === "game") render();
+          }, 480);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 5. UI RENDERERS
+    // =========================================================================
+
     function renderDashboard() {
       const { gridSize, mode, tense, soundOn } = state.config;
-      const engCount = customDecks.english ? customDecks.english.length : defaultEnglishVocab.length;
+      const greCount = customDecks.english?.length || defaultEnglishVocab.length;
+      const deCount = customDecks.german?.length || defaultGermanVocab.length;
+      const esCount = customDecks.spanish?.length || defaultSpanishVocab.length;
       const uploadedVerbCount = [
         customDecks.spanishVerbsCustom,
         customDecks.es_praesens,
         customDecks.es_praeteritum,
         customDecks.es_imperfekt,
         customDecks.es_weitere
-      ].reduce((sum, arr) => sum + (arr ? arr.length : 0), 0);
+      ].filter(Boolean).reduce((sum, arr) => sum + arr.length, 0);
       const esVerbCount = uploadedVerbCount > 0 ? uploadedVerbCount : spanish100Verbs.length;
-      const kernCount = customDecks.kernwortschatz ? customDecks.kernwortschatz.length : 0;
+      const kernCount = customDecks.kernwortschatz ? customDecks.kernwortschatz.length : defaultKernwortschatz.length;
 
       const hasCSVTenses = Boolean(
         customDecks.es_praesens || customDecks.es_praeteritum || customDecks.es_imperfekt || customDecks.es_weitere
@@ -891,160 +1309,167 @@
             { id: "presente", label: "Presente" },
             { id: "indefinido", label: "Indefinido" },
             { id: "imperfecto", label: "Imperfecto" },
+            { id: "perfecto", label: "Perfecto" },
+            { id: "ir_a", label: "Ir a + Inf." },
             { id: "futuro", label: "Futuro" },
             { id: "condicional", label: "Condicional" },
             { id: "subjuntivo", label: "Subjuntivo" }
           ];
 
       return `
-        <div class="w-full max-w-md my-auto bg-slate-900 rounded-3xl p-6 sm:p-7 border border-slate-800 shadow-2xl">
-          <div class="flex items-center justify-between mb-5">
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              </div>
+        <div class="flex-1 flex items-center justify-center p-4">
+          <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl animate-pop">
+            <div class="flex items-center justify-between mb-5">
               <div>
-                <h1 class="text-xl font-extrabold tracking-tight text-white leading-none">Speed Match</h1>
-                <p class="text-[11px] text-slate-400 mt-0.5">Wrong match adds +1.00s</p>
+                <h1 class="text-2xl font-black tracking-tight text-white">Speed Match</h1>
+                <p class="text-xs text-slate-400 mt-0.5">Match fast. Wrong match adds +1.00s.</p>
               </div>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <button onclick="setConfig('soundOn', ${!soundOn})" title="Toggle Money Sound" class="p-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-                ${soundOn
-                  ? `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>`
-                  : `<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>`
-                }
-              </button>
-              <button onclick="openImportModal()" title="Import CSVs & Export" class="px-2.5 py-2 rounded-xl border border-indigo-500/40 bg-indigo-500/15 hover:bg-indigo-500/25 text-[11px] font-bold text-indigo-300 transition">
-                + CSV / Export
-              </button>
-            </div>
-          </div>
-
-          <div class="space-y-5 mb-6">
-            <!-- Grid Size -->
-            <div>
-              <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Grid Size</label>
-              <div class="grid grid-cols-2 gap-2.5">
-                <button onclick="setConfig('gridSize', 8)" class="py-2.5 rounded-xl border-2 text-xs font-bold transition ${gridSize === 8 ? 'border-indigo-500 bg-indigo-500/20 text-indigo-300' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                  8 Blocks (4 Pairs)
+              <div class="flex items-center gap-1.5">
+                <button onclick="setConfig('soundOn', ${!soundOn})" title="Toggle sound" class="p-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-xs font-bold transition">
+                  ${soundOn ? "🔊" : "🔇"}
                 </button>
-                <button onclick="setConfig('gridSize', 12)" class="py-2.5 rounded-xl border-2 text-xs font-bold transition ${gridSize === 12 ? 'border-indigo-500 bg-indigo-500/20 text-indigo-300' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                  12 Blocks (6 Pairs)
+                <button onclick="openImportModal()" class="px-2.5 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-bold transition">
+                  + CSV / Export
                 </button>
               </div>
             </div>
 
-            <!-- Vocab Pool -->
-            <div>
-              <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Vocab Pool</label>
-              <div class="grid grid-cols-2 gap-2.5">
-                <button onclick="setConfig('mode', 'spanishVerbs')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'spanishVerbs' ? 'border-cyan-500 bg-cyan-500/15 text-cyan-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                  <div class="text-xs font-bold">ES Verbs → DE</div>
-                  <div class="text-[10px] opacity-75 mt-0.5">${esVerbCount} ${uploadedVerbCount > 0 ? 'CSV pairs' : 'verbs'} · All tenses</div>
-                </button>
-                <button onclick="setConfig('mode', 'english')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'english' ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                  <div class="text-xs font-bold">GRE English</div>
-                  <div class="text-[10px] opacity-75 mt-0.5">${engCount} super hard words</div>
-                </button>
-                <button onclick="setConfig('mode', 'german')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'german' ? 'border-amber-500 bg-amber-500/15 text-amber-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                  <div class="text-xs font-bold">German → DE</div>
-                  <div class="text-[10px] opacity-75 mt-0.5">German definitions</div>
-                </button>
-                <button onclick="setConfig('mode', 'spanish')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'spanish' ? 'border-fuchsia-500 bg-fuchsia-500/15 text-fuchsia-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                  <div class="text-xs font-bold">Spanish → EN</div>
-                  <div class="text-[10px] opacity-75 mt-0.5">English definitions</div>
-                </button>
-                ${kernCount > 0 ? `
-                  <button onclick="setConfig('mode', 'kernwortschatz')" class="col-span-2 p-2.5 rounded-xl border-2 text-left transition ${mode === 'kernwortschatz' ? 'border-violet-500 bg-violet-500/15 text-violet-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
-                    <div class="text-xs font-bold">Kernwortschatz (CSV)</div>
-                    <div class="text-[10px] opacity-75 mt-0.5">${kernCount} loaded core vocabulary pairs</div>
+            <div class="space-y-5">
+              <!-- Grid Size -->
+              <div>
+                <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Grid Size</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <button onclick="setConfig('gridSize', 8)" class="py-2.5 rounded-xl border-2 text-xs font-bold transition ${gridSize === 8 ? 'border-indigo-500 bg-indigo-500/20 text-indigo-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    8 Blocks (4 Pairs)
                   </button>
-                ` : ""}
-              </div>
-            </div>
-
-            <!-- Tense Selector (Shown for Spanish Verbs mode) -->
-            ${mode === "spanishVerbs" ? `
-              <div>
-                <label class="text-[11px] font-bold uppercase tracking-wider text-cyan-400/90 mb-2 block">Spanish Verb Tense</label>
-                <div class="grid ${hasCSVTenses ? 'grid-cols-3' : 'grid-cols-4'} gap-1.5">
-                  ${tenseOptions.map(t => `
-                    <button onclick="setConfig('tense', '${t.id}')" class="py-1.5 px-1 rounded-lg border text-[11px] font-semibold transition truncate ${tense === t.id ? 'border-cyan-400 bg-cyan-500/20 text-cyan-200' : 'border-slate-800 bg-slate-950/60 hover:border-slate-600 text-slate-400'}">
-                      ${t.label}
-                    </button>
-                  `).join("")}
+                  <button onclick="setConfig('gridSize', 12)" class="py-2.5 rounded-xl border-2 text-xs font-bold transition ${gridSize === 12 ? 'border-indigo-500 bg-indigo-500/20 text-indigo-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    12 Blocks (6 Pairs)
+                  </button>
                 </div>
               </div>
-            ` : ""}
-          </div>
 
-          <div class="space-y-2.5">
-            <button onclick="startGame()" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm tracking-wide shadow-lg shadow-indigo-950/60 transition flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              Start Speed Drill
-            </button>
-            ${state.history.length > 0 ? `
-              <button onclick="goToView('history')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition">
-                View Past Times (${state.history.length})
+              <!-- Vocab Pool -->
+              <div>
+                <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Vocab Pool</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="setConfig('mode', 'english')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'english' ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    <div class="text-xs font-bold">GRE English</div>
+                    <div class="text-[10px] opacity-75 mt-0.5">${greCount} hard GRE words</div>
+                  </button>
+
+                  <button onclick="setConfig('mode', 'spanishVerbs')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'spanishVerbs' ? 'border-cyan-500 bg-cyan-500/15 text-cyan-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    <div class="text-xs font-bold">ES Verbs → DE</div>
+                    <div class="text-[10px] opacity-75 mt-0.5">${esVerbCount} verbs • all tenses</div>
+                  </button>
+
+                  <button onclick="setConfig('mode', 'german')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'german' ? 'border-amber-500 bg-amber-500/15 text-amber-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    <div class="text-xs font-bold">German → DE</div>
+                    <div class="text-[10px] opacity-75 mt-0.5">${deCount} German defs</div>
+                  </button>
+
+                  <button onclick="setConfig('mode', 'spanish')" class="p-2.5 rounded-xl border-2 text-left transition ${mode === 'spanish' ? 'border-fuchsia-500 bg-fuchsia-500/15 text-fuchsia-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    <div class="text-xs font-bold">Spanish → EN</div>
+                    <div class="text-[10px] opacity-75 mt-0.5">${esCount} English defs</div>
+                  </button>
+
+                  <button onclick="setConfig('mode', 'kernwortschatz')" class="col-span-2 p-2.5 rounded-xl border-2 text-left transition ${mode === 'kernwortschatz' ? 'border-violet-500 bg-violet-500/15 text-violet-200' : 'border-slate-800 bg-slate-950/50 hover:border-slate-600 text-slate-400'}">
+                    <div class="text-xs font-bold">Kernwortschatz (ES → DE)</div>
+                    <div class="text-[10px] opacity-75 mt-0.5">${kernCount} core vocabulary pairs</div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tense Selector (Shown for Spanish Verbs mode) -->
+              ${mode === "spanishVerbs" ? `
+                <div>
+                  <label class="text-[11px] font-bold uppercase tracking-wider text-cyan-400/90 mb-2 block">Spanish Verb Tense</label>
+                  <div class="grid ${hasCSVTenses ? 'grid-cols-3' : 'grid-cols-5'} gap-1.5">
+                    ${tenseOptions.map(t => `
+                      <button onclick="setConfig('tense', '${t.id}')" class="py-1.5 px-1 rounded-lg border text-[10px] font-bold transition truncate ${tense === t.id ? 'border-cyan-400 bg-cyan-500/20 text-cyan-200' : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-600'}">
+                        ${t.label}
+                      </button>
+                    `).join("")}
+                  </div>
+                </div>
+              ` : ""}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-6 space-y-2.5">
+              <button onclick="startGame()" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-extrabold text-sm tracking-wide transition shadow-lg shadow-indigo-900/40">
+                ▶ Start Speed Drill
               </button>
-            ` : ""}
+              ${state.history.length > 0 ? `
+                <button onclick="goToView('history')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition border border-slate-700">
+                  View Past Runs (${state.history.length})
+                </button>
+              ` : ""}
+            </div>
           </div>
         </div>
       `;
     }
 
     function renderGame() {
-      const totalMs = state.elapsed + state.penalties * 1000;
-      const gridCols = state.config.gridSize === 12
-        ? "grid-cols-3 sm:grid-cols-4"
-        : "grid-cols-2 sm:grid-cols-4";
+      const totalTime = state.elapsed + state.penalties * 1000;
+      const gridCols = state.config.gridSize === 12 ? "grid-cols-3 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4";
 
       return `
-        <div class="w-full max-w-2xl flex flex-col items-center">
+        <div class="flex-1 flex flex-col items-center p-3 sm:p-5 max-w-2xl w-full mx-auto">
           <!-- Top HUD -->
-          <div class="w-full flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 mb-4 shadow-lg">
-            <button onclick="goToView('dashboard')" title="Back to Dashboard" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          <div class="w-full flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl px-3.5 py-2.5 mb-3 shadow-lg">
+            <button onclick="goToView('dashboard')" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition text-sm font-bold" aria-label="Exit drill">
+              ✕
             </button>
 
-            <div class="flex items-center gap-4">
-              <div class="text-center">
-                <div class="text-[9px] uppercase font-bold tracking-wider text-slate-500">Penalty</div>
-                <div class="text-sm font-mono font-bold ${state.penalties > 0 ? 'text-red-400' : 'text-slate-400'}">+${state.penalties}s</div>
+            <div class="text-center">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${escapeHTML(getModeLabel())}</div>
+              <div id="hud-timer" class="text-xl sm:text-2xl font-black font-mono-num ${state.isFinished ? 'text-emerald-400' : 'text-indigo-300'}">
+                ${formatTime(totalTime)}
               </div>
-              <div class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-1.5 text-center min-w-[96px]">
-                <div class="text-[9px] uppercase font-bold tracking-wider text-slate-500">Time</div>
-                <div id="hud-timer" class="text-lg sm:text-xl font-mono font-black ${state.isFinished ? 'text-emerald-400' : 'text-indigo-400'}">${formatTime(totalMs)}</div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="text-right px-2 py-1 rounded-lg bg-slate-950 border border-slate-800">
+                <div class="text-[9px] uppercase font-bold text-slate-500">Penalty</div>
+                <div class="text-xs font-mono-num font-bold ${state.penalties > 0 ? 'text-rose-400' : 'text-slate-400'}">+${state.penalties}s</div>
               </div>
+              <button onclick="setConfig('soundOn', ${!state.config.soundOn})" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs transition" aria-label="Toggle sound">
+                ${state.config.soundOn ? "🔊" : "🔇"}
+              </button>
             </div>
           </div>
 
-          <!-- Compact Matching Grid -->
+          <!-- Compact Match Grid -->
           <div class="w-full grid ${gridCols} gap-2">
             ${state.deck.map((card, idx) => {
               const isSelected = state.selected.includes(idx);
               const isMatched = state.matched.includes(card.pairId);
               const isMismatch = state.mismatchHighlight.includes(idx);
 
-              let cardClasses = "bg-slate-900 border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-slate-500 cursor-pointer";
+              let styleClass = "bg-slate-900 border-slate-700/80 text-slate-200 hover:border-slate-500 hover:bg-slate-800/80 cursor-pointer";
               if (isMatched) {
-                cardClasses = "bg-emerald-950/35 border-emerald-800/40 text-emerald-500/40 opacity-50 cursor-default animate-pop";
+                styleClass = "bg-emerald-950/30 border-emerald-800/40 text-emerald-500/40 cursor-default opacity-45 scale-[0.98]";
               } else if (isMismatch) {
-                cardClasses = "bg-red-950/80 border-red-500 text-red-100 animate-shake";
+                styleClass = "bg-rose-950/90 border-rose-500 text-rose-100 animate-shake";
               } else if (isSelected) {
-                cardClasses = "bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-950/70";
+                styleClass = "bg-indigo-600 border-indigo-400 text-white shadow-md shadow-indigo-900/50 scale-[0.98]";
               }
 
               return `
                 <button
                   onclick="handleCardClick(${idx})"
-                  class="relative flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-150 min-h-[82px] sm:min-h-[96px] select-none text-center ${cardClasses}"
+                  ${isMatched ? "disabled" : ""}
+                  class="flex flex-col items-center justify-center text-center p-2 sm:p-2.5 rounded-xl border-2 transition-all duration-150 min-h-[82px] sm:min-h-[96px] select-none ${styleClass}"
                 >
-                  <span class="${card.type === 'word' ? 'text-xs sm:text-sm font-extrabold tracking-tight' : 'text-[11px] sm:text-xs font-medium'} leading-snug break-words">
+                  <span class="${card.type === 'word' ? 'text-xs sm:text-sm font-bold' : 'text-[11px] sm:text-xs font-medium'} leading-snug break-words">
                     ${escapeHTML(card.text)}
                   </span>
-                  ${card.subDef ? `<span class="text-[9px] sm:text-[10px] opacity-75 mt-1 font-semibold">${escapeHTML(card.subDef)}</span>` : ""}
+                  ${card.subDef ? `
+                    <span class="text-[9px] sm:text-[10px] mt-1 opacity-70 font-medium leading-tight">
+                      ${escapeHTML(card.subDef)}
+                    </span>
+                  ` : ""}
                 </button>
               `;
             }).join("")}
@@ -1055,60 +1480,61 @@
 
     function renderHistory() {
       return `
-        <div class="w-full max-w-2xl py-2">
-          <div class="flex items-center justify-between mb-5">
+        <div class="flex-1 w-full max-w-2xl mx-auto p-4 sm:p-6 animate-pop">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div>
-              <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Past Times &amp; Mistakes</h2>
-              <p class="text-xs text-slate-400">Running log of your speed drill sessions</p>
+              <h2 class="text-2xl font-black text-white">Past Runs &amp; Mistakes</h2>
+              <p class="text-xs text-slate-400">Saved automatically in your browser</p>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="startGame()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">
-                Play Again
+              <button onclick="startGame()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">
+                ▶ Play Again
               </button>
-              <button onclick="goToView('dashboard')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition">
-                Dashboard
+              <button onclick="goToView('dashboard')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition">
+                Settings
               </button>
             </div>
           </div>
 
           ${state.history.length === 0 ? `
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-sm text-slate-400">
-              No runs recorded yet. Start a drill to log your times!
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400 text-sm">
+              No runs recorded yet. Complete a drill to see your times and mistake log.
             </div>
           ` : `
             <div class="space-y-3">
               ${state.history.map(run => {
-                const finalMs = run.rawTimeMs + run.penalties * 1000;
+                const finalTime = run.rawTimeMs + run.penalties * 1000;
                 return `
                   <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
                     <div class="px-4 py-3 bg-slate-950/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
                       <div class="flex flex-wrap items-center gap-1.5">
                         <span class="px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase">${escapeHTML(run.grid)}</span>
-                        <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-semibold">${escapeHTML(run.modeLabel)}</span>
+                        <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-bold">${escapeHTML(run.modeLabel)}</span>
                         <span class="text-[10px] text-slate-500">${escapeHTML(run.date)}</span>
                       </div>
                       <div class="flex items-center gap-4">
                         <div class="text-right">
                           <div class="text-[9px] uppercase font-bold text-slate-500">Penalty</div>
-                          <div class="text-xs font-mono font-bold ${run.penalties > 0 ? 'text-red-400' : 'text-slate-400'}">+${run.penalties}s</div>
+                          <div class="text-xs font-mono-num font-bold ${run.penalties > 0 ? 'text-rose-400' : 'text-slate-400'}">+${run.penalties}s</div>
                         </div>
                         <div class="text-right">
-                          <div class="text-[9px] uppercase font-bold text-slate-500">Final</div>
-                          <div class="text-lg font-mono font-black text-emerald-400">${formatTime(finalMs)}</div>
+                          <div class="text-[9px] uppercase font-bold text-slate-500">Final Time</div>
+                          <div class="text-lg font-mono-num font-black text-emerald-400">${formatTime(finalTime)}</div>
                         </div>
                       </div>
                     </div>
 
-                    <div class="px-4 py-3 text-xs">
+                    <div class="p-3.5 text-xs">
                       ${run.wrongAttempts.length === 0 ? `
-                        <div class="text-emerald-400/90 font-medium">Flawless run — 0 wrong matches.</div>
+                        <div class="text-emerald-400/90 font-medium">✓ Flawless run — no wrong matches!</div>
                       ` : `
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Wrong Matches (${run.wrongAttempts.length})</div>
                         <div class="space-y-1.5">
                           ${run.wrongAttempts.map(m => `
-                            <div class="bg-slate-950/60 border border-red-900/40 rounded-lg px-3 py-2 text-slate-300">
-                              <span class="text-red-400 font-bold">✕</span>
-                              Matched <span class="text-red-200 font-semibold">"${escapeHTML(m.w1)}"</span>
-                              with <span class="text-red-200 font-semibold">"${escapeHTML(m.w2)}"</span>
+                            <div class="bg-slate-950/70 border border-rose-900/40 rounded-lg px-2.5 py-1.5 text-slate-300">
+                              <span class="text-rose-300 font-semibold">"${escapeHTML(m.w1)}"</span>
+                              <span class="text-slate-500 mx-1">≠</span>
+                              <span class="text-rose-300 font-semibold">"${escapeHTML(m.w2)}"</span>
                             </div>
                           `).join("")}
                         </div>
@@ -1118,8 +1544,9 @@
                 `;
               }).join("")}
             </div>
-            <div class="mt-4 flex justify-end">
-              <button onclick="clearHistory()" class="text-[11px] text-slate-500 hover:text-red-400 transition">Clear History</button>
+
+            <div class="mt-5 text-right">
+              <button onclick="clearHistory()" class="text-xs text-slate-500 hover:text-rose-400 transition">Clear History</button>
             </div>
           `}
         </div>
@@ -1128,12 +1555,13 @@
 
     function render() {
       const root = document.getElementById("app");
+      if (!root) return;
       if (state.view === "dashboard") root.innerHTML = renderDashboard();
       else if (state.view === "game") root.innerHTML = renderGame();
-      else if (state.view === "history") root.innerHTML = renderHistory();
+      else root.innerHTML = renderHistory();
     }
 
-    // Initial render
+    // Boot App
     render();
   </script>
 </body>
